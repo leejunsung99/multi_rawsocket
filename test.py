@@ -6,6 +6,7 @@ from rawsocketpy import get_hw, to_str, protocol_to_ethertype, to_bytes, to_int
 from rawsocketpy import HashChaining
 from multiprocessing import Process
 import threading
+import os
 
 H= HashChaining(17)
 #dic={}
@@ -47,8 +48,19 @@ def lets_start(interface):
     rs = RawAsyncServerCallback(interface, 0xEEFA, LongTaskTest, callback)
     rs.spin()    
 
+def find_network():
+    stream = os.popen('ifconfig -s').read().split('\n')
+    network = []
+    for i in range(len(stream)-1):
+        re = stream[i].split(' ')
+        #In Resberry
+        if re[0]=='Iface' or re[0]=='lo':
+            continue
+        network.append(re[0])
+    return network
+
 def main():
-    network = ['eth0', 'wlan0']
+    network = find_network()
     procs = []
     for interface in network:
         proc = Process(target=lets_start, args=(interface, ))

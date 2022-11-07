@@ -2,6 +2,7 @@ from rawsocketpy import RawSocket , to_str
 import time
 from multiprocessing import Process
 import threading
+import os
 
 def send_msg(interface, network, performance, msg):
     sock = RawSocket(interface, 0xEEFA)
@@ -27,9 +28,36 @@ def Divide_msg(interface, network, performance, msg):
     Dmsg = msg[start:end]
     return Dmsg
 
+def find_network():
+    stream = os.popen('ifconfig -s').read().split('\n')
+    network = []
+    for i in range(len(stream)-1):
+        re = stream[i].split(' ')
+        #In Resberry
+        if re[0]=='Iface' or re[0]=='lo':
+            continue
+        network.append(re[0])
+    return network
+
+def net_pf(network):
+    performance = []
+    for i in range(len(network)):
+        performance.append(50)
+    return performance
+
 def main():
-    network = ['eth0', 'wlan0']
-    performance = [50,50]
+    network = find_network()
+    performance = net_pf(network)
+
+    #first Discover server MAC Address
+    procs = []
+    for interface in network:
+        proc = Process(target=send_msg, args=(interface, network, performance, 'Discover' ,))
+        procs.append(proc)
+        proc.start()
+
+    for proc in procs:
+        proc.join()
 
     while True:
         msg = input("\nEnter send message : ")
