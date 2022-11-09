@@ -1,4 +1,4 @@
-from rawsocketpy import RawSocket , to_str
+from rawsocketpy import RawSocket , to_str, get_hw
 import time
 from multiprocessing import Process
 import threading
@@ -45,10 +45,17 @@ def net_pf(network):
         performance.append(50)
     return performance
 
+def Unique_id(network):
+    mac = []
+    for i in range(len(network)):
+        mac.append(to_str(get_hw(network[i])))
+    print(mac)
+    return mac[0]
+
 def main():
     network = find_network()
     performance = net_pf(network)
-
+    Uid = Unique_id(network)
     #first Discover server MAC Address
     procs = []
     for interface in network:

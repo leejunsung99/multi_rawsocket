@@ -37,6 +37,7 @@ class RawSocket(object):
         self.protocol = socket.htons(protocol)
         self.ethertype = protocol_to_ethertype(protocol)
         self.interface = interface
+        self.Uid = get_hw(interface)
         self.mac = get_hw(self.interface)
         """:description: Source MAC address used for communications - could be modified after initialization
         :type: str/bytes/bytearray"""
@@ -72,7 +73,7 @@ class RawSocket(object):
             ethertype = self.ethertype
         if dest is None:
             dest = self.BROADCAST
-        payload = to_bytes(dest, self.mac, ethertype, msg)
+        payload = to_bytes(dest, self.mac, ethertype,self.Uid, msg)
         self.sock.send(payload)
 
     def recv(self):

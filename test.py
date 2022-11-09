@@ -35,6 +35,7 @@ class LongTaskTest(RawRequestHandler):
 
 
         print(to_str(self.packet.src)+"-->"+ user)
+        print(to_str(self.packet.Uid)+"--> Uid")
         print(user+' send:  '+data)
         #print(H)
 
@@ -59,9 +60,17 @@ def find_network():
         network.append(re[0])
     return network
 
+def Unique_id(network):
+    mac = []
+    for i in range(len(network)):
+        mac.append(to_str(get_hw(network[i])))
+    print(mac)
+    return mac[0]
+
 def main():
     network = find_network()
     procs = []
+    Uid = Unique_id(network)
     for interface in network:
         proc = Process(target=lets_start, args=(interface, ))
         procs.append(proc)

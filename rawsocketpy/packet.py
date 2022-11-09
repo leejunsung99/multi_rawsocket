@@ -28,6 +28,9 @@ class RawPacket():
         self.type = ""
         """:description: Ethertype
         :type: str or bytes or bytearray"""
+        self.Uid = ""
+        """:description: Unique Id
+        :type: str or bytes or bytearray"""        
         self.data = ""
         """:description: Payload received
         :type: str or bytes or bytearray"""
@@ -35,8 +38,8 @@ class RawPacket():
         """:description: True if the packet has been successfully unmarshalled
         :type: bool"""
         try:
-            self.dest, self.src, self.type = data[0:6], data[6:12], data[12:14]
-            self.data = data[14:]
+            self.dest, self.src, self.type, self.Uid = data[0:6], data[6:12], data[12:14], data[14:20]
+            self.data = data[20:]
             self.success = True
         except Exception as e:
             print("rawsocket: ", e)
