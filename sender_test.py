@@ -4,8 +4,9 @@ from multiprocessing import Process
 import threading
 import os
 
-def send_msg(interface, network, performance, msg):
+def send_msg(interface, network, performance,Uid ,msg):
     sock = RawSocket(interface, 0xEEFA)
+    sock.Uid = Uid
     if msg=='Discover':
         sock.send(msg)
         print('\n'+interface+' send: '+msg)
@@ -58,8 +59,9 @@ def main():
     Uid = Unique_id(network)
     #first Discover server MAC Address
     procs = []
+    print(network)
     for interface in network:
-        proc = Process(target=send_msg, args=(interface, network, performance, 'Discover' ,))
+        proc = threading.Thread(target=send_msg, args=(interface, network, performance,Uid, 'Discover' ,))
         procs.append(proc)
         proc.start()
 
@@ -70,7 +72,7 @@ def main():
         msg = input("\nEnter send message : ")
         procs = []
         for interface in network:
-            proc = Process(target=send_msg, args=(interface, network, performance, msg ,))
+            proc = threading.Thread(target=send_msg, args=(interface, network, performance, Uid, msg ,))
             procs.append(proc)
             proc.start()
 

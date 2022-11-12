@@ -71,15 +71,15 @@ def main():
     network = find_network()
     procs = []
     Uid = Unique_id(network)
-    for interface in network:
-        proc = Process(target=lets_start, args=(interface, ))
-        procs.append(proc)
-        proc.start()
+    # for interface in network:
+    #     proc = Process(target=lets_start, args=(interface, ))
+    #     procs.append(proc)
+    #     proc.start()
 
-    #for interface in network:
-    #    proc = threading(target=lets_start, args=(interface, ))
-    #    procs.append(proc)
-    #    proc.start()
+    for interface in network:
+       proc = threading.Thread(target=lets_start, args=(interface, ))
+       procs.append(proc)
+       proc.start()
 
     for proc in procs:
         proc.join()
