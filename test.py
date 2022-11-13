@@ -9,7 +9,7 @@ import threading
 import os
 
 H= HashChaining(17)
-#dic={}
+dic={}
 def callback(handler, server):
     print("Testing")
     handler.setup()
@@ -17,28 +17,32 @@ def callback(handler, server):
     handler.finish()
 
 def User_name(packet,data):
-    OUI = to_int(to_str(packet.src[1:3]))
-    UUA = to_int(to_str(packet.src[3:5]))
+    OUI = to_int(to_str(packet.Uid[1:3]))
+    UUA = to_int(to_str(packet.Uid[3:5]))
     return H.set_name(OUI,UUA,msg=data)    
+
+def sum_msg(packet,user,data):
+    global dic
+    if packet.src == packet.Uid: dic={} 
+    try:
+        dic[user]+=data
+    except:
+        dic[user]=data 
+    print(dic)  
 
 class LongTaskTest(RawRequestHandler):
     def handle(self):
         time.sleep(1)
-        #print(self.packet)
-        #print User Name
-        data = self.packet.data.decode('utf-8')
-        user = User_name(self.packet,data)
-        #try:
-        #    dic[user]+=data
-        #except:
-        #    dic[user]=data
 
+        data = self.packet.data.decode('utf-8').strip('\x00')
+        user = User_name(self.packet,data)
 
         print(to_str(self.packet.src)+"-->"+ user)
         print(to_str(self.packet.Uid)+"--> Uid")
         print(user+' send:  '+data)
         #print(H)
-
+        sum_msg(self.packet, user,data)
+        
     def finish(self):
         print("End\n")
 
