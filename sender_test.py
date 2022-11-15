@@ -1,8 +1,12 @@
-from rawsocketpy import RawSocket , to_str, get_hw
+from rawsocketpy import RawSocket , to_str, get_hw, to_bytes
 import time
 from multiprocessing import Process
 import threading
 import os
+import numpy as np
+import cv2
+import base64
+
 
 def send_msg(interface, network, performance,Uid ,msg):
     sock = RawSocket(interface, 0xEEFA)
@@ -20,6 +24,14 @@ def send_msg(interface, network, performance,Uid ,msg):
         sock.send(Dmsg)
         print('\n'+interface+' send: '+Dmsg)
 
+def send_img(interface, network, performance,Uid ,img):
+    sock = RawSocket(interface, 0xEEFA)
+    sock.Uid = Uid   
+    Dmsg = Divide_msg(interface, network, performance, img)
+    Dimg = base64.b64encode(cv2.imencode('.jpg',Dmsg)[1]).decode('utf-8')
+    sock.send(to_bytes(Dimg))
+    print('\n'+interface+' send: ',end='')
+    print(Dimg)
 def Divide_msg(interface, network, performance, msg):
     for i in range(len(network)):
         if interface == network[i]:
@@ -72,7 +84,11 @@ def main():
         msg = input("\nEnter send message : ")
         procs = []
         for interface in network:
-            proc = threading.Thread(target=send_msg, args=(interface, network, performance, Uid, msg ,))
+            if msg=='send img':
+                img = np.full((100,100,3),(255,0,255),dtype=np.uint8)
+                proc = threading.Thread(target=send_img, args=(interface, network, performance, Uid, img ,))
+            else:
+                proc = threading.Thread(target=send_msg, args=(interface, network, performance, Uid, msg ,))
             procs.append(proc)
             proc.start()
 
