@@ -7,6 +7,9 @@ from rawsocketpy import HashChaining
 from multiprocessing import Process
 import threading
 import os
+import cv2
+import numpy as np
+import base64
 
 H= HashChaining(17)
 dic={}
@@ -28,7 +31,15 @@ def sum_msg(packet,user,data):
         dic[user]+=data
     except:
         dic[user]=data 
-    print(dic)  
+    print(user + ' total == '+dic[user])
+    try:
+        imgdata = base64.b64decode(dic[user])
+        imgarr = np.frombuffer(imgdata, dtype=np.uint8)
+        image = cv2.imdecode(imgarr, cv2.IMREAD_COLOR)
+        cv2.imshow('image',image)
+        cv2.waitKey(0)
+    except:
+        pass
 
 class LongTaskTest(RawRequestHandler):
     def handle(self):

@@ -39,9 +39,9 @@ class RawServer(object):
         handler = self.RequestHandlerClass(packet, self)
         self.handle_handler(handler)
 
-        data = packet.data.decode('utf-8')
+        data = packet.data.decode('utf-8').strip('\x00')
         mac = get_hw(self.interfae)
-        if data[:8]=='Discover':
+        if data=='Discover':
             time.sleep(1)
             self.socket.send(to_str(mac))
 

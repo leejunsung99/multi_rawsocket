@@ -32,6 +32,7 @@ def send_img(interface, network, performance,Uid ,img):
     sock.send(to_bytes(Dimg))
     print('\n'+interface+' send: ',end='')
     print(to_bytes(Dimg))
+    
 def Divide_msg(interface, network, performance, msg):
     for i in range(len(network)):
         if interface == network[i]:
