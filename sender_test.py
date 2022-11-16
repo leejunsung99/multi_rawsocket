@@ -27,11 +27,11 @@ def send_msg(interface, network, performance,Uid ,msg):
 def send_img(interface, network, performance,Uid ,img):
     sock = RawSocket(interface, 0xEEFA)
     sock.Uid = Uid   
-    Dmsg = Divide_msg(interface, network, performance, img)
-    Dimg = base64.b64encode(cv2.imencode('.jpg',Dmsg)[1]).decode('utf-8')
+    Bimg = base64.b64encode(cv2.imencode('.jpg',img)[1]).decode('utf-8')
+    Dimg = Divide_msg(interface, network, performance, Bimg)
     sock.send(to_bytes(Dimg))
     print('\n'+interface+' send: ',end='')
-    print(Dimg)
+    print(to_bytes(Dimg))
 def Divide_msg(interface, network, performance, msg):
     for i in range(len(network)):
         if interface == network[i]:
