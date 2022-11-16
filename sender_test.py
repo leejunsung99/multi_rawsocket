@@ -32,7 +32,7 @@ def send_img(interface, network, performance,Uid ,img):
     sock.send(to_bytes(Dimg))
     print('\n'+interface+' send: ',end='')
     print(to_bytes(Dimg))
-    
+
 def Divide_msg(interface, network, performance, msg):
     for i in range(len(network)):
         if interface == network[i]:
@@ -84,8 +84,14 @@ def main():
     while True:
         msg = input("\nEnter send message : ")
         procs = []
+        if msg == 'send img':
+            img = input('Enter img file name :  ')
         for interface in network:
             if msg=='send img':
+                #try:
+                #    img = cv2.imread(img+'.jpg',cv2.IMREAD_COLOR)
+                #except:
+                #    img = np.full((100,100,3),(255,0,255),dtype=np.uint8)
                 img = np.full((100,100,3),(255,0,255),dtype=np.uint8)
                 proc = threading.Thread(target=send_img, args=(interface, network, performance, Uid, img ,))
             else:
