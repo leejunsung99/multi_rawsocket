@@ -6,6 +6,7 @@ from .packet import RawPacket
 from .socket import RawSocket
 from .util import get_hw, to_bytes, protocol_to_ethertype , to_str
 import time
+import datetime
 
 class RawServer(object):
     """A **Blocking** base server implementation of a server on top of the RawSocket.
@@ -35,7 +36,21 @@ class RawServer(object):
 
     def spin_once(self):
         """Handles the next message"""
-        packet = self.recv()
+        length = self.recv()
+        length1 = length.data.decode('utf-8').strip('\x00')
+        packet = self.recvall(int(length1))
+        #time estimate
+        Rtime = time.time()
+        Stime = self.recv()
+        Stime = Stime.data.decode('utf-8').strip('\x00')
+        print(Stime)
+        print(Rtime)
+        Ttime = Rtime - float(Stime)
+        print(Ttime)
+        Qtime = str(datetime.timedelta(seconds = Ttime))
+        print(Qtime)
+        print(self.interface)
+        ##
         handler = self.RequestHandlerClass(packet, self)
         self.handle_handler(handler)
 
