@@ -76,6 +76,22 @@ class RawSocket(object):
         payload = to_bytes(dest, self.mac, ethertype,self.Uid, msg)
         self.sock.send(payload)
 
+    def sendall(self, msg, dest=None, ethertype=None):
+        if ethertype is None:
+            ethertype = self.ethertype
+        if dest is None:
+            dest = self.BROADCAST
+        size = len(msg)
+        while size:
+            if size < 1000:
+                payload = to_bytes(dest, self.mac, ethertype,self.Uid, msg)
+                self.sock.send(payload)
+                break
+            payload = to_bytes(dest, self.mac, ethertype,self.Uid, msg[:1000])
+            self.sock.send(payload)
+            msg = msg[1000:]
+            size -= 1000       
+
     def recv(self):
         """Receive data from the socket on the protocol provided in the constructor
 
@@ -85,6 +101,21 @@ class RawSocket(object):
         """
         data = self.sock.recv(1024)
         return RawPacket(data)
+
+    def recvall(self, count):
+        buf = bytearray()
+        count+=20
+        newbuf = self.sock.recv(count)
+        buf += newbuf
+        count -= len(newbuf)
+
+        while count:
+            count+=20
+            newbuf = self.sock.recv(count)
+            if not newbuf: return None
+            buf += newbuf[20:]
+            count -= len(newbuf)
+        return RawPacket(buf)
 
     def __str__(self):
         return self.interface
