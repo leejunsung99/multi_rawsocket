@@ -11,10 +11,12 @@ import cv2
 import numpy as np
 import base64
 
+global dic
 H= HashChaining(17)
 dic={}
+
 def callback(handler, server):
-    print("Testing")
+    #print("Testing")
     handler.setup()
     handler.handle()
     handler.finish()
@@ -26,20 +28,22 @@ def User_name(packet,data):
 
 def sum_msg(packet,user,data):
     global dic
-    if packet.src == packet.Uid: dic={} 
+    if packet.src == packet.Uid:
+        dic={} 
     try:
         dic[user]+=data
     except:
         dic[user]=data 
     print(user + ' total == '+dic[user])
-    try:
-        imgdata = base64.b64decode(dic[user])
-        imgarr = np.frombuffer(imgdata, dtype=np.uint8)
-        image = cv2.imdecode(imgarr, cv2.IMREAD_COLOR)
-        cv2.imshow('image',image)
-        cv2.waitKey(0)
-    except:
-        pass
+    if packet.src != packet.Uid:
+        try:
+            imgdata = base64.b64decode(dic[user])
+            imgarr = np.frombuffer(imgdata, dtype=np.uint8)
+            image = cv2.imdecode(imgarr, cv2.IMREAD_COLOR)
+            cv2.imshow('image',image)
+            cv2.waitKey(0)
+        except:
+            pass
 
 class LongTaskTest(RawRequestHandler):
     def handle(self):
@@ -51,14 +55,14 @@ class LongTaskTest(RawRequestHandler):
         print(to_str(self.packet.src)+"-->"+ user)
         print(to_str(self.packet.Uid)+"--> Uid")
         print(user+' send:  '+data)
-        #print(H)
-        sum_msg(self.packet, user,data)
+        if data!='Discover': sum_msg(self.packet, user,data)
         
     def finish(self):
         print("End\n")
 
     def setup(self):
-        print("Begin") 
+        #print("Begin")
+        pass 
 
 def lets_start(interface):
     rs = RawAsyncServerCallback(interface, 0xEEFA, LongTaskTest, callback)
@@ -86,11 +90,6 @@ def main():
     network = find_network()
     procs = []
     Uid = Unique_id(network)
-    # for interface in network:
-    #     proc = Process(target=lets_start, args=(interface, ))
-    #     procs.append(proc)
-    #     proc.start()
-
     for interface in network:
        proc = threading.Thread(target=lets_start, args=(interface, ))
        procs.append(proc)
