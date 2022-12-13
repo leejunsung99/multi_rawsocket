@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 from .packet import RawPacket
 from .socket import RawSocket
-from .util import get_hw, to_bytes, protocol_to_ethertype , to_str
+from .util import get_hw, to_bytes, protocol_to_ethertype , to_str, to_int
 import time
 import datetime
 
@@ -36,21 +36,16 @@ class RawServer(object):
 
     def spin_once(self):
         """Handles the next message"""
-        length = self.recv()
+        length = self.recvall(64)
         length1 = length.data.decode('utf-8').strip('\x00')
+        Ktime = time.time()
         packet = self.recvall(int(length1))
-        #time estimate
         Rtime = time.time()
-        Stime = self.recv()
-        Stime = Stime.data.decode('utf-8').strip('\x00')
-        print(Stime)
-        print(Rtime)
-        Ttime = Rtime - float(Stime)
-        print(Ttime)
+
+        Ttime = Rtime-Ktime
         Qtime = str(datetime.timedelta(seconds = Ttime))
-        print(Qtime)
-        print(self.interface)
-        ##
+
+        print(self.interface+' running time: '+Qtime)
         handler = self.RequestHandlerClass(packet, self)
         self.handle_handler(handler)
 
