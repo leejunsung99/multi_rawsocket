@@ -37,7 +37,7 @@ class RawSocket(object):
         self.protocol = socket.htons(protocol)
         self.ethertype = protocol_to_ethertype(protocol)
         self.interface = interface
-        self.Uid = get_hw(interface)
+        self.Uid = get_hw(self.interface)
         self.mac = get_hw(self.interface)
         """:description: Source MAC address used for communications - could be modified after initialization
         :type: str/bytes/bytearray"""
@@ -83,7 +83,8 @@ class RawSocket(object):
             dest = self.BROADCAST
         size = len(msg)
         while size:
-            if size < 1000:
+            self.sock.recv(64)
+            if size <= 1000:
                 payload = to_bytes(dest, self.mac, ethertype,self.Uid, msg)
                 self.sock.send(payload)
                 break
@@ -103,18 +104,25 @@ class RawSocket(object):
         return RawPacket(data)
 
     def recvall(self, count):
+        payload = to_bytes(self.BROADCAST, self.mac, self.ethertype, self.Uid, 'ok')
+        self.sock.send(payload)
         buf = bytearray()
         count+=20
         newbuf = self.sock.recv(count)
         buf += newbuf
         count -= len(newbuf)
-
+        if count<=0: return RawPacket(buf)
+        self.sock.send(payload)
         while count:
             count+=20
-            newbuf = self.sock.recv(count)
+            while True:
+                newbuf = self.sock.recv(count)
+                if newbuf:
+                    break
             if not newbuf: return None
             buf += newbuf[20:]
             count -= len(newbuf)
+            self.sock.send(payload)
         return RawPacket(buf)
 
     def __str__(self):
