@@ -83,7 +83,11 @@ class RawSocket(object):
             dest = self.BROADCAST
         size = len(msg)
         while size:
-            self.sock.recv(64)
+            while True:
+                k = self.sock.recv(64)
+                k = k.data.decode('utf-8').strip('\x00')
+                if k:
+                    break
             if size <= 1000:
                 payload = to_bytes(dest, self.mac, ethertype,self.Uid, msg)
                 self.sock.send(payload)
